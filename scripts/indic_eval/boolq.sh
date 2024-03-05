@@ -1,103 +1,187 @@
 # Here we use 1 GPU for demonstration, but you can use multiple GPUs and larger eval_batch_size to speed up the evaluation.
 export CUDA_VISIBLE_DEVICES=0
 
+# BASE="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# QUANTS=""
+# ADAPTED="ai4bharat/airavata"
+# RESULTS="results"
 
-# -------------------------------------------------------------
-#                            BoolQ
-# -------------------------------------------------------------
+echo "Evaluating BoolQ for each model..."
 
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+IFS=','
 
-echo "evaluating openhathi base on boolq ..."
+# ============================================================
+#                   Base Models
+# ============================================================
 
-# zero-shot
-python3 -m eval.boolq.run_eval \
-    --ntrain 0 \
-    --save_dir "results/boolq/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+for model_path_or_name in $BASE; do
+    model_name=$(basename "${model_path_or_name}")
 
-# 5-shot
-python3 -m eval.boolq.run_eval \
-    --ntrain 5 \
-    --save_dir "results/boolq/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # -------------------------------------------------------------
+    #                            BoolQ
+    # -------------------------------------------------------------
 
+    echo "Evaluating $model_name on boolq ..."
 
-model_name_or_path="ai4bharat/airavata"
+    # BoolQ zero-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-echo "evaluating airavata on boolq ..."
+    # BoolQ 5-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+        
+    # -------------------------------------------------------------
+    #                       Indic BoolQ
+    # -------------------------------------------------------------
 
-# zero-shot
-python3 -m eval.boolq.run_eval \
-    --ntrain 0 \
-    --save_dir "results/boolq/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    echo "Evaluating $model_name on boolq-hi ..."
 
-# 5-shot
-python3 -m eval.boolq.run_eval \
-    --ntrain 5 \
-    --save_dir "results/boolq/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # Indic BoolQ zero-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
+    # Indic BoolQ 5-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-
-# -------------------------------------------------------------
-#                       Indic BoolQ
-# -------------------------------------------------------------
-
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
-
-echo "evaluating openhathi base on boolq-hi ..."
-
-# zero-shot
-python3 -m eval.boolq.run_translated_eval \
-    --ntrain 0 \
-    --save_dir "results/boolq-hi/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
-
-# 5-shot
-python3 -m eval.boolq.run_translated_eval \
-    --ntrain 5 \
-    --save_dir "results/boolq-hi/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+done
 
 
-model_name_or_path="ai4bharat/airavata"
+# ============================================================
+#                   Quantized Models
+# ============================================================
 
-echo "evaluating airavata on boolq ..."
 
-# zero-shot
-python3 -m eval.boolq.run_translated_eval \
-    --ntrain 0 \
-    --save_dir "results/boolq-hi/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
-# 5-shot
-python3 -m eval.boolq.run_translated_eval \
-    --ntrain 5 \
-    --save_dir "results/boolq-hi/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+for model_path_or_name in $QUANTS; do
+    model_name=$(basename "${model_path_or_name}")
+
+    # -------------------------------------------------------------
+    #                            BoolQ
+    # -------------------------------------------------------------
+
+    echo "Evaluating $model_name on boolq ..."
+
+    # BoolQ zero-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # BoolQ 5-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+        
+    # -------------------------------------------------------------
+    #                       Indic BoolQ
+    # -------------------------------------------------------------
+
+    echo "Evaluating $model_name on boolq-hi ..."
+
+    # Indic BoolQ zero-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Indic BoolQ 5-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+done
+
+
+# ============================================================
+#                   Adapted Models
+# ============================================================
+
+
+for model_path_or_name in $ADAPTED; do
+    model_name=$(basename "${model_path_or_name}")
+
+    # -------------------------------------------------------------
+    #                            BoolQ
+    # -------------------------------------------------------------
+
+    echo "Evaluating adapted $model_name on boolq ..."
+
+    # BoolQ zero-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # BoolQ 5-shot
+    python3 -m eval.boolq.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        
+    # -------------------------------------------------------------
+    #                       Indic BoolQ
+    # -------------------------------------------------------------
+
+    echo "Evaluating adapted $model_name on boolq-hi ..."
+
+    # Indic BoolQ zero-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # Indic BoolQ 5-shot
+    python3 -m eval.boolq.run_translated_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/boolq-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+done
