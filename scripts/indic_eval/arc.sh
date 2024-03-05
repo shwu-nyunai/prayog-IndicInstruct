@@ -1,230 +1,369 @@
-# Here we use 1 GPU for demonstration, but you can use multiple GPUs and larger eval_batch_size to speed up the evaluation.
+# BASE="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# QUANTS=""
+# ADAPTED="ai4bharat/airavata"
+# RESULTS="results"
+
 export CUDA_VISIBLE_DEVICES=0
 
+echo "Evaluating ARC-Easy and ARC-Challenge for each model..."
 
-# -------------------------------------------------------------
-#                       ARC-Easy
-# -------------------------------------------------------------
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+IFS=','
 
-echo "evaluating openhathi base on arc easy ..."
+# ============================================================
+#                   Base Models
+# ============================================================
 
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai2_arc" \
-    --subset "easy" \
-    --save_dir "results/arc-easy/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+for model_path_or_name in $BASE; do
+    model_name=$(basename "${model_path_or_name}")
 
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai2_arc" \
-    --subset "easy" \
-    --save_dir "results/arc-easy/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # -------------------------------------------------------------
+    #                       ARC-Easy
+    # -------------------------------------------------------------
 
+    echo "Evaluating model $model_name on ARC-Easy"
 
-model_name_or_path="ai4bharat/airavata"
+    # ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-echo "evaluating airavata on arc ..."
+    # ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       ARC-Challenge
+    # -------------------------------------------------------------
 
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai2_arc" \
-    --subset "easy" \
-    --save_dir "results/arc-easy/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    echo "Evaluating model $model_name on ARC-Challenge"
 
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai2_arc" \
-    --subset "easy" \
-    --save_dir "results/arc-easy/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
+    # ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic ARC-Easy
+    # -------------------------------------------------------------
+    echo "Evaluating base model $model_name on Indic ARC-Easy ..."
 
-# -------------------------------------------------------------
-#                       ARC-Challenge
-# -------------------------------------------------------------
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+    # Indic ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-echo "evaluating openhathi base on arc challenge ..."
+    # Indic ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic ARC-Challenge
+    # -------------------------------------------------------------
 
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai2_arc" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    echo "Evaluating base model $model_name on Indic ARC-Challenge ..."
 
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai2_arc" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # Indic ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-
-model_name_or_path="ai4bharat/airavata"
-
-echo "evaluating airavata on arc ..."
-
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai2_arc" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
-
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai2_arc" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
-
-
-# -------------------------------------------------------------
-#                       Indic ARC-Easy
-# -------------------------------------------------------------
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
-
-echo "evaluating openhathi base on indic arc easy ..."
-
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "easy" \
-    --save_dir "results/arc-easy-hi/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
-
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "easy" \
-    --save_dir "results/arc-easy-hi/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # Indic ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+done
 
 
-model_name_or_path="ai4bharat/airavata"
-
-echo "evaluating airavata on arc ..."
-
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "easy" \
-    --save_dir "results/arc-easy-hi/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
-
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "easy" \
-    --save_dir "results/arc-easy-hi/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+# ============================================================
+#                   Quantized Models
+# ============================================================
 
 
-# -------------------------------------------------------------
-#                       ARC-Challenge
-# -------------------------------------------------------------
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
 
-echo "evaluating openhathi base on indic arc challenge ..."
+for model_path_or_name in $QUANTS; do
+    model_name=$(basename "${model_path_or_name}")
 
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge-hi/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    # -------------------------------------------------------------
+    #                       ARC-Easy
+    # -------------------------------------------------------------
 
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge-hi/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    echo "Evaluating model $model_name on ARC-Easy"
+
+    # ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       ARC-Challenge
+    # -------------------------------------------------------------
+
+    echo "Evaluating model $model_name on ARC-Challenge"
+
+    # ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic ARC-Easy
+    # -------------------------------------------------------------
+    echo "Evaluating base model $model_name on Indic ARC-Easy ..."
+
+    # Indic ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Indic ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic ARC-Challenge
+    # -------------------------------------------------------------
+
+    echo "Evaluating base model $model_name on Indic ARC-Challenge ..."
+
+    # Indic ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Indic ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+done
 
 
-model_name_or_path="ai4bharat/airavata"
+# ============================================================
+#                   Adapted Models
+# ============================================================
 
-echo "evaluating airavata on arc ..."
+for adap in $ADAPTED; do
+    model_name=$(basename "${adap}")
+    # -------------------------------------------------------------
+    #                       ARC-Easy
+    # -------------------------------------------------------------
 
-# zero-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 0 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge-hi/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    echo "Evaluating adapted model $model_name on ARC-Easy"
+    # ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-0shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
-# 5-shot
-python3 -m eval.arc.run_eval \
-    --ntrain 5 \
-    --dataset "ai4bharat/ai2_arc-hi" \
-    --subset "challenge" \
-    --save_dir "results/arc-challenge-hi/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy/$model_name-5shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # -------------------------------------------------------------
+    #                       ARC-Challenge
+    # -------------------------------------------------------------
+
+    echo "Evaluating adapted model $adap on ARC-Challenge"
+
+    # ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-0shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai2_arc" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge/$model_name-5shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    
+    # -------------------------------------------------------------
+    #                       Indic ARC-Easy
+    # -------------------------------------------------------------
+    echo "Evaluating adapted model $model_name on Indic ARC-Easy"
+
+    # Indic ARC-Easy zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-0shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # Indic ARC-Easy 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "easy" \
+        --save_dir "$RESULTS/arc-easy-hi/$model_name-5shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # -------------------------------------------------------------
+    #                       Indic ARC-Challenge
+    # -------------------------------------------------------------
+
+    echo "Evaluating adapted model $model_name on Indic ARC-Challenge"
+
+    # Indic ARC-Challenge zero-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 0 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-0shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # Indic ARC-Challenge 5-shot
+    python3 -m eval.arc.run_eval \
+        --ntrain 5 \
+        --dataset "ai4bharat/ai2_arc-hi" \
+        --subset "challenge" \
+        --save_dir "$RESULTS/arc-challenge-hi/$model_name-5shot" \
+        --model_name_or_path $adap \
+        --tokenizer_name_or_path $adap \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+done
