@@ -1,112 +1,185 @@
-# Here we use 1 GPU for demonstration, but you can use multiple GPUs and larger eval_batch_size to speed up the evaluation.
+# BASE="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# QUANTS=""
+# ADAPTED="ai4bharat/airavata"
+# RESULTS="results"
+
 export CUDA_VISIBLE_DEVICES=0
 
+echo "Evaluating Hellaswag for each model..."
 
-# -------------------------------------------------------------
-#                       MMLU
-# -------------------------------------------------------------
+IFS=','
 
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# ============================================================
+#                   Base Models
+# ============================================================
 
-echo "evaluating openhathi base on mmlu ..."
+for model_path_or_name in $BASE; do
+    model_name=$(basename "${model_path_or_name}")
 
-# zero-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 0 \
-    --data_dir data/eval/mmlu \
-    --save_dir "results/mmlu/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    # -------------------------------------------------------------
+    #                             MMLU
+    # -------------------------------------------------------------
+    echo "Evaluating $model_name on MMLU ..."
+    # MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-# 5-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 5 \
-    --data_dir data/eval/mmlu \
-    --save_dir "results/mmlu/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic MMLU
+    # -------------------------------------------------------------
+    echo "Evaluating $model_name on Indic MMLU ..."
+    
+    # Indic MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-
-model_name_or_path="ai4bharat/airavata"
-
-echo "evaluating airavata on mmlu ..."
-
-# zero-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 0 \
-    --data_dir data/eval/mmlu \
-    --save_dir "results/mmlu/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
-
-
-# 5-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 5 \
-    --data_dir data/eval/mmlu \
-    --save_dir "results/mmlu/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
-
-
-# -------------------------------------------------------------
-#                       Indic MMLU
-# -------------------------------------------------------------
-
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
-
-echo "evaluating openhathi base on indic mmlu ..."
-
-# zero-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 0 \
-    --data_dir data/eval/mmlu_hi_translated \
-    --save_dir "results/mmlu-hi/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
-
-# 5-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 5 \
-    --data_dir data/eval/mmlu_hi_translated \
-    --save_dir "results/mmlu-hi/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # Indic MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+done
 
 
-model_name_or_path="ai4bharat/airavata"
+# ============================================================
+#                   Quantized Models
+# ============================================================
 
-echo "evaluating airavata on indic mmlu ..."
+for model_path_or_name in $QUANTS; do
+    model_name=$(basename "${model_path_or_name}")
 
-# zero-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 0 \
-    --data_dir data/eval/mmlu_hi_translated \
-    --save_dir "results/mmlu-hi/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # -------------------------------------------------------------
+    #                             MMLU
+    # -------------------------------------------------------------
+    echo "Evaluating $model_name on MMLU ..."
+    # MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+    
+    # -------------------------------------------------------------
+    #                       Indic MMLU
+    # -------------------------------------------------------------
+    echo "Evaluating $model_name on Indic MMLU ..."
+    
+    # Indic MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Indic MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+done
+
+# ============================================================
+#                   Adapted Models
+# ============================================================
+
+for model_path_or_name in $ADAPTED; do
+    model_name=$(basename "${model_path_or_name}")
+    # -------------------------------------------------------------
+    #                             MMLU
+    # -------------------------------------------------------------
+
+    echo "Evaluating $model_name on MMLU ..."
+
+    # MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu \
+        --save_dir "$RESULTS/mmlu/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # -------------------------------------------------------------
+    #                       Indic MMLU
+    # -------------------------------------------------------------
+
+    echo "Evaluating $model_name on Indic MMLU ..."
+
+    # Indic MMLU zero-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 0 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
 
-# 5-shot
-python3 -m eval.mmlu.run_eval \
-    --ntrain 5 \
-    --data_dir data/eval/mmlu_hi_translated \
-    --save_dir "results/mmlu-hi/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # Indic MMLU 5-shot
+    python3 -m eval.mmlu.run_eval \
+        --ntrain 5 \
+        --data_dir data/eval/mmlu_hi_translated \
+        --save_dir "$RESULTS/mmlu-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+done
