@@ -104,3 +104,35 @@ def create_prompt_with_gemma_chat_format2(messages, bos="<bos>", eos="<eos>", ad
     # The next line removes the eos and end of turn token if last message has assistant prompt
     formatted_text = formatted_text[: -len(E_TURN+eos+"\n")] if messages[-1]["role"] == "assistant" else formatted_text
     return formatted_text
+
+def create_prompt_with_chat_format(messages, *args, **kwargs):
+    """
+    Creates a conversation format for "user", "assistant", and "system" roles.
+
+    Args:
+        messages (list): A list of messages where each message is a dictionary containing 'role' and 'content' keys.
+                         Role can be 'user', 'assistant', or 'system'.
+                         Eg. [{'role': 'user', 'content': 'What is Pallavi Gowda and what she is known for?'},
+                              {'role': 'assistant', 'content': 'Pallavi Gowda is a well-known actress...'}]
+    Returns:
+        str: A formatted conversation string.
+
+    Example:
+        create_prompt_with_chat_format([{'role': 'user', 'content': 'What is Pallavi Gowda and what she is known for?'},
+                              {'role': 'assistant', 'content': 'Pallavi Gowda is a well-known actress...'}])
+    """
+    COLON = ":"
+    NEWLINE = "\n"
+    SPACE = " "
+
+    formatted_text = ""
+    for message in messages:
+        if message["role"] in { "system", "user", "assistant"}:
+            formatted_text += message["role"] + COLON + SPACE + message["content"] + NEWLINE
+        else:
+            raise ValueError(
+                "Chat template only supports 'system', 'user' and 'assistant' roles. Invalid role: {}.".format(
+                    message["role"]
+                )
+            )
+    return formatted_text
