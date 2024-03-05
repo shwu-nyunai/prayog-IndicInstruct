@@ -1,48 +1,106 @@
+# BASE="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# QUANTS=""
+# ADAPTED="ai4bharat/airavata"
+# RESULTS="results"
+
+# -------------------------------------------------------------
+# 
+# 
+#                       IndicCopa
+# 
+# 
+# -------------------------------------------------------------
+
 export CUDA_VISIBLE_DEVICES=0
 
+echo "Evaluating IndiCopa for each model..."
 
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+IFS=','
 
-echo "evaluating openhathi base on indiccopa ..."
+# ============================================================
+#                   Base Models
+# ============================================================
 
-# zero-shot
-python3 -m eval.indiccopa.run_eval \
-    --ntrain 0 \
-    --save_dir "results/indiccopa/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8
+for model_path_or_name in $BASE; do
+    model_name=$(basename "${model_path_or_name}")
 
-# 5-shot
-python3 -m eval.indiccopa.run_eval \
-    --ntrain 5 \
-    --save_dir "results/indiccopa/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    echo "evaluating $model_name on IndicCopa ..."
 
+    # zero-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/indiccopa/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-model_name_or_path="ai4bharat/airavata"
-
-echo "evaluating airavata on indiccopa ..."
-
-# zero-shot
-python3 -m eval.indiccopa.run_eval \
-    --ntrain 0 \
-    --save_dir "results/indiccopa/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # 5-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/indiccopa/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 4
+done
 
 
-# 5-shot
-python3 -m eval.indiccopa.run_eval \
-    --ntrain 5 \
-    --save_dir "results/indiccopa/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+# ============================================================
+#                   Quantized Models
+# ============================================================
+
+
+for model_path_or_name in $QUANTS; do
+    model_name=$(basename "${model_path_or_name}")
+
+    echo "evaluating $model_name on IndicCopa ..."
+
+    # zero-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/indiccopa/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # 5-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/indiccopa/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 4
+done
+
+
+# ============================================================
+#                   Adapted Models
+# ============================================================
+
+for model_path_or_name in $ADAPTED; do
+    model_name=$(basename "${model_path_or_name}")
+
+    echo "evaluating $model_name on IndicCopa ..."
+
+    # zero-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/indiccopa/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+
+    # 5-shot
+    python3 -m eval.indiccopa.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/indiccopa/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 4 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+done
