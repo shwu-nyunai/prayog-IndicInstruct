@@ -25,6 +25,7 @@ def main(args):
         load_in_8bit=args.load_in_8bit,
         device_map="balanced_low_0" if torch.cuda.device_count() > 1 else "auto",
         gptq_model=args.gptq,
+        awq_model=args.awq,
     )
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
@@ -87,6 +88,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_batch_size", type=int, default=1, help="Batch size for evaluation.")
     parser.add_argument("--load_in_8bit", action="store_true", help="Load model in 8bit mode.")
     parser.add_argument("--gptq", action="store_true", help="Evaluate a 4-bit quantized GPTQ model.")
+    parser.add_argument("--awq", action="store_true", help="Evaluate a 4-bit quantized AWQ model.")
     parser.add_argument("--use_chat_format", action="store_true", help="Use the chat format for the prompts.")
     parser.add_argument("--chat_formatting_function", type=str, default="eval.templates.create_prompt_with_tulu_chat_format", help="Function to create the chat format.")
     args = parser.parse_args()
