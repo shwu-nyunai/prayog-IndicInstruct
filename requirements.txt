@@ -24,6 +24,7 @@ termcolor
 jsonlines
 unidic-lite
 einops
+packaging # dependency of flash-attn
 flash-attn
 auto-gptq
 AutoAWQ_kernels

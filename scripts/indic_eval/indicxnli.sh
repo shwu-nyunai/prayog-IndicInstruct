@@ -40,7 +40,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/indicxnli/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 4
+        --eval_batch_size 8
 done
 
 
@@ -69,7 +69,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 4
+        --eval_batch_size 8
 done
 
 # ============================================================
@@ -98,7 +98,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/indicxnli/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 4 \
+        --eval_batch_size 8 \
         --use_chat_format \
         --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
