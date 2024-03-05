@@ -29,7 +29,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/boolq/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
     # BoolQ 5-shot
     python3 -m eval.boolq.run_eval \
@@ -37,7 +37,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/boolq/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 4
         
     # -------------------------------------------------------------
     #                       Indic BoolQ
@@ -51,7 +51,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/boolq-hi/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
     # Indic BoolQ 5-shot
     python3 -m eval.boolq.run_translated_eval \
@@ -59,7 +59,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/boolq-hi/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
 done
 
@@ -86,7 +86,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
     # BoolQ 5-shot
     python3 -m eval.boolq.run_eval \
@@ -95,7 +95,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 4
         
     # -------------------------------------------------------------
     #                       Indic BoolQ
@@ -110,7 +110,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
     # Indic BoolQ 5-shot
     python3 -m eval.boolq.run_translated_eval \
@@ -119,7 +119,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 4
 
 done
 
@@ -144,7 +144,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/boolq/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
         --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
@@ -154,7 +154,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/boolq/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
         --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
         
@@ -170,7 +170,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/boolq-hi/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
         --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
@@ -180,7 +180,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/boolq-hi/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
         --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
 
