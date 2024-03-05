@@ -37,7 +37,7 @@ def gen_prompt(dev_data, k=-1):
         exemplars = dev_data.select(range(k))
         for example in exemplars:
             prompt += format_example(
-                passage=example["itv2 hi passage"], question=example["itv2 hi question"], label=example["answer"]
+                passage=example["passage"], question=example["question"], label=example["answer"]
             )
     return prompt
 
@@ -53,6 +53,7 @@ def main(args):
             load_in_8bit=args.load_in_8bit,
             device_map="balanced_low_0" if torch.cuda.device_count() > 1 else "auto",
             gptq_model=args.gptq,
+            awq_model=args.awq,
         )
 
     if not os.path.exists(args.save_dir):
@@ -68,7 +69,7 @@ def main(args):
     for i, example in enumerate(test_data):
         k = args.ntrain
         prompt_end = format_example(
-            passage=example["itv2 hi passage"], question=example["itv2 hi question"], label=None
+            passage=example["passage"], question=example["question"], label=None
         )
         train_prompt = gen_prompt(dev_data.shuffle(seed=args.seed), k)
         prompt = train_prompt + prompt_end
@@ -156,6 +157,11 @@ if __name__ == "__main__":
         "--gptq",
         action="store_true",
         help="If given, we're evaluating a 4-bit quantized GPTQ model.",
+    )
+    parser.add_argument(
+        "--awq",
+        action="store_true",
+        help="If given, we're evaluating a 4-bit quantized AWQ model.",
     )
     parser.add_argument(
         "--use_chat_format",
