@@ -1,108 +1,189 @@
-# Here we use 1 GPU for demonstration, but you can use multiple GPUs and larger eval_batch_size to speed up the evaluation.
+# BASE="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# QUANTS=""
+# ADAPTED="ai4bharat/airavata"
+# RESULTS="results"
+
 export CUDA_VISIBLE_DEVICES=0
 
+echo "Evaluating Hellaswag for each model..."
 
-# -------------------------------------------------------------
-#                       Hellaswag
-# -------------------------------------------------------------
+IFS=','
 
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
+# ============================================================
+#                   Base Models
+# ============================================================
 
-echo "evaluating openhathi base on hellaswag ..."
+for model_path_or_name in $BASE; do
+    model_name=$(basename "${model_path_or_name}")
 
-# zero-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 0 \
-    --save_dir "results/hellaswag/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
-
-# 5-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 5 \
-    --save_dir "results/hellaswag/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # -------------------------------------------------------------
+    #                       Hellaswag
+    # -------------------------------------------------------------
 
 
-model_name_or_path="ai4bharat/airavata"
+    echo "Evaluating $model_name on Hellaswag ..."
 
-echo "evaluating airavata on hellaswag ..."
+    # Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/hellaswag/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-# zero-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 0 \
-    --save_dir "results/hellaswag/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/hellaswag/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+    
 
+    # -------------------------------------------------------------
+    #                       Indic Hellaswag
+    # -------------------------------------------------------------
 
-# 5-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 5 \
-    --save_dir "results/hellaswag/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    echo "Evaluating $model_name on Indic Hellaswag ..."
 
+    # Indic Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
 
-# -------------------------------------------------------------
-#                       Indic Hellaswag
-# -------------------------------------------------------------
-
-model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"
-
-echo "evaluating openhathi base on hellaswag-hi ..."
-
-# zero-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 0 \
-    --dataset "Thanmay/hellaswag-translated" \
-    --save_dir "results/hellaswag-hi/openhathi-base-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
-
-# 5-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 5 \
-    --dataset "Thanmay/hellaswag-translated" \
-    --save_dir "results/hellaswag-hi/openhathi-base-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1
+    # Indic Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8
+done
 
 
-model_name_or_path="ai4bharat/airavata"
+# ============================================================
+#                   Quantized Models
+# ============================================================
 
-echo "evaluating airavata on hellaswag ..."
+for model_path_or_name in $QUANTS; do
+    model_name=$(basename "${model_path_or_name}")
 
-# zero-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 0 \
-    --dataset "Thanmay/hellaswag-translated" \
-    --save_dir "results/hellaswag-hi/airavata-0shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    # -------------------------------------------------------------
+    #                       Hellaswag
+    # -------------------------------------------------------------
 
 
-# 5-shot
-python3 -m eval.hellaswag.run_eval \
-    --ntrain 5 \
-    --dataset "Thanmay/hellaswag-translated" \
-    --save_dir "results/hellaswag-hi/airavata-5shot" \
-    --model_name_or_path $model_name_or_path \
-    --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 1 \
-    --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    echo "Evaluating $model_name on Hellaswag ..."
+
+    # Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/hellaswag/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/hellaswag/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+    
+
+    # -------------------------------------------------------------
+    #                       Indic Hellaswag
+    # -------------------------------------------------------------
+
+    echo "Evaluating $model_name on Indic Hellaswag ..."
+
+    # Indic Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+
+    # Indic Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --awq \
+        --eval_batch_size 8
+done
+
+
+# ============================================================
+#                   Adapted Models
+# ============================================================
+
+for model_path_or_name in $ADAPTED; do
+    model_name=$(basename "${model_path_or_name}")
+
+    # -------------------------------------------------------------
+    #                       Hellaswag
+    # -------------------------------------------------------------
+    echo "evaluating $model_name on Hellaswag ..."
+    # Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --save_dir "$RESULTS/hellaswag/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+
+    # Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --save_dir "$RESULTS/hellaswag/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+    # -------------------------------------------------------------
+    #                       Indic Hellaswag
+    # -------------------------------------------------------------
+    echo "evaluating $model_name on Indic Hellaswag ..."
+
+    # Indic Hellaswag zero-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 0 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-0shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+
+
+    # Indic Hellaswag 5-shot
+    python3 -m eval.hellaswag.run_eval \
+        --ntrain 5 \
+        --dataset "Thanmay/hellaswag-translated" \
+        --save_dir "$RESULTS/hellaswag-hi/$model_name-5shot" \
+        --model_name_or_path $model_path_or_name \
+        --tokenizer_name_or_path $model_path_or_name \
+        --eval_batch_size 8 \
+        --use_chat_format \
+        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+done
