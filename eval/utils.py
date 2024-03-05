@@ -239,6 +239,7 @@ def load_hf_lm_and_tokenizer(
     load_in_8bit=False,
     convert_to_half=False,
     gptq_model=False,
+    awq_model=False,
     use_fast_tokenizer=True,
     padding_side="left",
 ):
@@ -249,6 +250,13 @@ def load_hf_lm_and_tokenizer(
 
         model_wrapper = AutoGPTQForCausalLM.from_quantized(
             model_name_or_path, device="cuda:0", use_triton=True
+        )
+        model = model_wrapper.model
+    elif awq_model:
+        from awq import AutoAWQForCausalLM
+        
+        model_wrapper = AutoAWQForCausalLM.from_quantized(
+            model_name_or_path, device_map=device_map
         )
         model = model_wrapper.model
     elif load_in_8bit:
