@@ -26,7 +26,6 @@ for model_path_or_name in $BASE; do
 
     # WinoGrande zero-shot
     python3 -m eval.winogrande.run_eval \
-        --ntrain 0 \
         --save_dir "$RESULTS/winogrande/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
@@ -52,7 +51,6 @@ for model_path_or_name in $QUANTS; do
 
     # WinoGrande zero-shot
     python3 -m eval.winogrande.run_eval \
-        --ntrain 0 \
         --save_dir "$RESULTS/winogrande/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
@@ -77,7 +75,6 @@ for model_path_or_name in $ADAPTED; do
 
     # WinoGrande zero-shot
     python3 -m eval.winogrande.run_eval \
-        --ntrain 0 \
         --save_dir "$RESULTS/winogrande/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
