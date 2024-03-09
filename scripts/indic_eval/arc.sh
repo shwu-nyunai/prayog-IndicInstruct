@@ -264,7 +264,7 @@ for adap in $ADAPTED; do
         --tokenizer_name_or_path $adap \
         --eval_batch_size 8 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # ARC-Easy 5-shot
     python3 -m eval.arc.run_eval \
@@ -274,9 +274,9 @@ for adap in $ADAPTED; do
         --save_dir "$RESULTS/arc-easy/$model_name-5shot" \
         --model_name_or_path $adap \
         --tokenizer_name_or_path $adap \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # -------------------------------------------------------------
     #                       ARC-Challenge
@@ -294,7 +294,7 @@ for adap in $ADAPTED; do
         --tokenizer_name_or_path $adap \
         --eval_batch_size 8 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # ARC-Challenge 5-shot
     python3 -m eval.arc.run_eval \
@@ -304,9 +304,9 @@ for adap in $ADAPTED; do
         --save_dir "$RESULTS/arc-challenge/$model_name-5shot" \
         --model_name_or_path $adap \
         --tokenizer_name_or_path $adap \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
     
     # -------------------------------------------------------------
     #                       Indic ARC-Easy
@@ -323,7 +323,7 @@ for adap in $ADAPTED; do
         --tokenizer_name_or_path $adap \
         --eval_batch_size 8 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # Indic ARC-Easy 5-shot
     python3 -m eval.arc.run_eval \
@@ -333,9 +333,9 @@ for adap in $ADAPTED; do
         --save_dir "$RESULTS/arc-easy-hi/$model_name-5shot" \
         --model_name_or_path $adap \
         --tokenizer_name_or_path $adap \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # -------------------------------------------------------------
     #                       Indic ARC-Challenge
@@ -353,7 +353,7 @@ for adap in $ADAPTED; do
         --tokenizer_name_or_path $adap \
         --eval_batch_size 8 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
     # Indic ARC-Challenge 5-shot
     python3 -m eval.arc.run_eval \
@@ -363,7 +363,7 @@ for adap in $ADAPTED; do
         --save_dir "$RESULTS/arc-challenge-hi/$model_name-5shot" \
         --model_name_or_path $adap \
         --tokenizer_name_or_path $adap \
-        --eval_batch_size 8 \
+        --eval_batch_size 4 \
         --use_chat_format \
-        --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+        --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 done

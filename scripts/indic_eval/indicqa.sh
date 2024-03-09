@@ -40,7 +40,7 @@ python3 -m eval.indicqa.run_eval \
     --tokenizer_name_or_path $model_name_or_path \
     --eval_batch_size 4 \
     --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
 # with context
 python3 -m eval.indicqa.run_eval \
@@ -51,4 +51,4 @@ python3 -m eval.indicqa.run_eval \
     --tokenizer_name_or_path $model_name_or_path \
     --eval_batch_size 2 \
     --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    --chat_formatting_function $CHAT_FORMATTING_FUNCTION

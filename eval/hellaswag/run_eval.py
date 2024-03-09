@@ -15,6 +15,8 @@ from eval.utils import (
     load_hf_lm_and_tokenizer,
     dynamic_import_function,
 )
+from pathlib import Path
+import pickle
 
 choices = ["A", "B", "C", "D"]
 
@@ -63,28 +65,30 @@ def main(args):
     dataset = dataset.map(lambda x: {"endings": [ending.strip() for ending in x["endings"]]})
     test_data = dataset["validation"]
     test_data = test_data.map(lambda x: {"label": int(x["label"])})
+    # add pickling of prompts and use that instead of the list
 
-    prompts = []
-    for i, example in enumerate(test_data):
-        dev_data = test_data.filter(lambda x: x["ctx"] != example["ctx"])
-        k = args.ntrain
-        prompt_end = format_example(ctx=example["ctx"], endings=example["endings"], label=None)
-        train_prompt = gen_prompt(dev_data.shuffle(seed=args.seed), k)
-        prompt = train_prompt + prompt_end
-
-        if args.use_chat_format:
-            messages = [{"role": "user", "content": prompt}]
-            prompt = chat_formatting_function(messages, add_bos=False)
-            if prompt[-1] in ["\n", " "]:
-                prompt += "The answer is: "
-            else:
-                prompt += " The answer is: "
-
-        tokenized_prompt = tokenizer(prompt, truncation=False, add_special_tokens=False).input_ids
-        # make sure every prompt is less than 2048 tokens
-        while len(tokenized_prompt) > 2048:
-            k -= 1
-            train_prompt = gen_prompt(dev_data, k)
+    cache_dir = Path(os.environ.get("HELLASWAG_CACHE", None)) if os.environ.get("HELLASWAG_CACHE", None) else None
+    if cache_dir:
+        if args.chat_formatting_function:
+            cache_path = f"cache-{args.dataset.split('/')[-1]}-{args.chat_formatting_function.replace('.', '-')}"
+        else:
+            cache_path = f"cache-{args.dataset.split('/')[-1]}"
+        cache_path += ".pkl"
+        cache_path = cache_dir / cache_path
+    
+    if cache_dir and cache_path.is_file():
+        print(f"Using cached prompts from {cache_path}")
+        with open(cache_path, "rb") as f:
+            prompts = pickle.load(f)
+    else:
+        print("Generating prompts...")
+        prompts = []
+        for i, example in enumerate(test_data):
+            print(f"Filtering example {i}/{len(test_data)} | No. of prompts {len(prompts)}")
+            dev_data = test_data.filter(lambda x: x["ctx"] != example["ctx"])
+            k = args.ntrain
+            prompt_end = format_example(ctx=example["ctx"], endings=example["endings"], label=None)
+            train_prompt = gen_prompt(dev_data.shuffle(seed=args.seed), k)
             prompt = train_prompt + prompt_end
 
             if args.use_chat_format:
@@ -96,11 +100,28 @@ def main(args):
                     prompt += " The answer is: "
 
             tokenized_prompt = tokenizer(prompt, truncation=False, add_special_tokens=False).input_ids
-        prompts.append(prompt)
+            # make sure every prompt is less than 2048 tokens
+            while len(tokenized_prompt) > 2048:
+                k -= 1
+                train_prompt = gen_prompt(dev_data, k)
+                prompt = train_prompt + prompt_end
 
-    # get the answer for all examples
-    # adding a prefix space here, as that's expected from the prompt
-    # TODO: should raise a warning if this returns more than one token
+                if args.use_chat_format:
+                    messages = [{"role": "user", "content": prompt}]
+                    prompt = chat_formatting_function(messages, add_bos=False)
+                    if prompt[-1] in ["\n", " "]:
+                        prompt += "The answer is: "
+                    else:
+                        prompt += " The answer is: "
+
+                tokenized_prompt = tokenizer(prompt, truncation=False, add_special_tokens=False).input_ids
+            prompts.append(prompt)
+        # get the answer for all examples
+        if cache_dir:
+            with open(cache_path, "wb") as f:
+                pickle.dump(prompts, f)
+        # adding a prefix space here, as that's expected from the prompt
+        # TODO: should raise a warning if this returns more than one token
     answer_choice_ids = [tokenizer.encode(answer_choice, add_special_tokens=False)[-1] for answer_choice in choices]
     pred_indices, all_probs = get_next_word_predictions(
         model,

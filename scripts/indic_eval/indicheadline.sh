@@ -28,4 +28,4 @@ python3 -m eval.indicheadline.run_eval \
     --tokenizer_name_or_path $model_name_or_path \
     --eval_batch_size 1 \
     --use_chat_format \
-    --chat_formatting_function eval.templates.create_prompt_with_tulu_chat_format
+    --chat_formatting_function $CHAT_FORMATTING_FUNCTION
