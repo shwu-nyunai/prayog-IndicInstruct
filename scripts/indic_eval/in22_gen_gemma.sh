@@ -1,5 +1,5 @@
 # Here we use 1 GPU for demonstration, but you can use multiple GPUs and larger eval_batch_size to speed up the evaluation.
-export CUDA_VISIBLE_DEVICES=0
+# export CUDA_VISIBLE_DEVICES=0
 
 echo "---------------------------------------------"
 echo "             SINGLE TURN EVALUATION          "
@@ -22,7 +22,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8
+    --eval_batch_size 1
 
 # 5-shot
 python3 -m eval.in22.run_eval \
@@ -32,7 +32,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    --eval_batch_size 1
 
 
 model_name_or_path="google/gemma-7b-it"
@@ -47,7 +47,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-it-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format
 
@@ -59,7 +59,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-it-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format
     
@@ -83,7 +83,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-it-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format2
 
@@ -95,7 +95,7 @@ python3 -m eval.in22.run_eval \
     --save_dir "results/in22-gen/gemma-7b-it-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format2
     
@@ -126,7 +126,7 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8
+    --eval_batch_size 1
 
 # 5-shot
 python3 -m eval.in22.run_multi_turn_eval \
@@ -136,7 +136,7 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4
+    --eval_batch_size 1
 
 
 model_name_or_path="google/gemma-7b-it"
@@ -151,7 +151,7 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-it-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format
 
@@ -163,7 +163,7 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-it-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format
     
@@ -187,7 +187,7 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-it-0shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 8 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format2
 
@@ -199,6 +199,6 @@ python3 -m eval.in22.run_multi_turn_eval \
     --save_dir "results/in22-gen/gemma-7b-it-5shot" \
     --model_name_or_path $model_name_or_path \
     --tokenizer_name_or_path $model_name_or_path \
-    --eval_batch_size 4 \
+    --eval_batch_size 1 \
     --use_chat_format \
     --chat_formatting_function eval.templates.create_prompt_with_gemma_chat_format2

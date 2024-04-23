@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0
+# export CUDA_VISIBLE_DEVICES=0
 
 
 model_name_or_path="sarvamai/OpenHathi-7B-Hi-v0.1-Base"

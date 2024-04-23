@@ -11,7 +11,7 @@
 # 
 # -------------------------------------------------------------
 
-export CUDA_VISIBLE_DEVICES=0
+# export CUDA_VISIBLE_DEVICES=0
 
 echo "Evaluating IndicSentiment for each model..."
 
@@ -32,7 +32,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/indicsentiment/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 1
 
     # 5-shot
     python3 -m eval.indicsentiment.run_eval \
@@ -40,7 +40,7 @@ for model_path_or_name in $BASE; do
         --save_dir "$RESULTS/indicsentiment/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8
+        --eval_batch_size 1
 done
 
 
@@ -61,7 +61,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 1
 
     # 5-shot
     python3 -m eval.indicsentiment.run_eval \
@@ -70,7 +70,7 @@ for model_path_or_name in $QUANTS; do
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
         --awq \
-        --eval_batch_size 8
+        --eval_batch_size 1
 done
 
 
@@ -89,7 +89,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/indicsentiment/$model_name-0shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 8 \
+        --eval_batch_size 1 \
         --use_chat_format \
         --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
@@ -99,7 +99,7 @@ for model_path_or_name in $ADAPTED; do
         --save_dir "$RESULTS/indicsentiment/$model_name-5shot" \
         --model_name_or_path $model_path_or_name \
         --tokenizer_name_or_path $model_path_or_name \
-        --eval_batch_size 4 \
+        --eval_batch_size 1 \
         --use_chat_format \
         --chat_formatting_function $CHAT_FORMATTING_FUNCTION
 
